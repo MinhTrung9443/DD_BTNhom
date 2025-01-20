@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 @Entity
+@Builder
 public class Account implements Serializable{
 	/**
 	 * 
