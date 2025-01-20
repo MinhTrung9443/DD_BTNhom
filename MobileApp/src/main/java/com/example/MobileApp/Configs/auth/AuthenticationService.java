@@ -1,5 +1,8 @@
 package com.example.MobileApp.Configs.auth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +27,7 @@ public class AuthenticationService {
 	@Autowired
 	private AuthenticationManager authManager;
 	@Autowired
-	private RoleRepository roleReposotory;
+	private RoleRepository roleRepository;
 	@Autowired 
 	private OTPServiceImpl otpService;
 	
@@ -58,7 +61,7 @@ public class AuthenticationService {
 	    
 	    }
 	
-        var role = roleReposotory.findById(1); //1: user
+        var role = roleRepository.findById(1); //1: user
 		var user = Account.builder()
 				.username(response.getUsername())
 				.password(encoder.encode(response.getPassword()))
@@ -87,5 +90,50 @@ public class AuthenticationService {
         		.build();
 	}
 	
+	
+	// request reset password
+	public ResetPasswordResponse requestResetPassword(ResetPasswordRequest req) {
+		String otp = otpService.generateOTP(req.getEmail());
+        otpService.sendOTPEmail(req.getEmail(), otp);
+        
+        return ResetPasswordResponse.builder()
+        		.email(req.getEmail())
+        		.newPassword(req.getNewPass())
+        		.confirmedPassword(req.getConfirmedPass())
+        		.otp(otp)
+        		.build();
+       
+	}
 	// reset pass
+	public Map<String, String> resetPassword(ResetPasswordResponse res) {
+		
+		Map<String, String> response = new HashMap<>();
+		// fetch user by email
+	    var userOptional = accountRepository.findByEmail(res.getEmail());
+	    if (userOptional.isEmpty()) {
+	        response.put("error", "User not found with the provided email.");
+	        return response;
+	    }
+
+	    Account user = userOptional.get();
+
+	    // validate OTP and password matching
+	    if (!otpService.validateOTP(res.getEmail(), res.getOtp())) {
+	        response.put("error", "Invalid OTP.");
+	        return response;
+	    }
+
+	    if (!res.getConfirmedPassword().equals(res.getNewPassword())) {
+	        response.put("error", "Passwords do not match.");
+	        return response;
+	    }
+
+	    // reset password
+	    user.setPassword(encoder.encode(res.getNewPassword()));
+	    accountRepository.save(user);
+	    otpService.removeOTP(res.getEmail());
+
+	    response.put("message", "Password reset successfully.");
+	    return response;
+	}
 }

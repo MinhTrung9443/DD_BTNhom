@@ -1,5 +1,7 @@
 package com.example.MobileApp.Controller.auth;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,8 @@ import com.example.MobileApp.Configs.auth.AuthenticationResponse;
 import com.example.MobileApp.Configs.auth.AuthenticationService;
 import com.example.MobileApp.Configs.auth.RegisterRequest;
 import com.example.MobileApp.Configs.auth.RegisterResponse;
+import com.example.MobileApp.Configs.auth.ResetPasswordRequest;
+import com.example.MobileApp.Configs.auth.ResetPasswordResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,5 +41,17 @@ public class AuthenticationController {
 	public ResponseEntity<AuthenticationResponse> authenticate(
 			@RequestBody AuthenticationRequest request) {
 		return ResponseEntity.ok(authService.authenticate(request));
+	}
+	
+	//request reset password
+	@PostMapping("/request-reset-password")
+	public ResponseEntity<ResetPasswordResponse> requestResetPassword(@RequestBody ResetPasswordRequest request) {
+		return ResponseEntity.ok(authService.requestResetPassword(request));
+	}
+	
+	//reset password
+	@PostMapping("/reset-password")
+	public ResponseEntity<Map<String,String>> resetPassword(@RequestBody ResetPasswordResponse response) {
+		return ResponseEntity.ok(authService.resetPassword(response));
 	}
 }

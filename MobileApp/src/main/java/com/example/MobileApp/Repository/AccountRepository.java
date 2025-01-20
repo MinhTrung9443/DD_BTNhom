@@ -11,6 +11,9 @@ import com.example.MobileApp.Entity.Account;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Integer>{
-	@Query("SELECT u FROM User u WHERE u.username = :username")
+	@Query("SELECT a FROM Account a WHERE a.username = :username")
 	Optional<Account> findByUsername(@Param("username") String username);
+	
+	@Query("SELECT a FROM Account a WHERE a.emai; = :email")
+	Optional<Account> findByEmail(@Param("email") String email);
 }
