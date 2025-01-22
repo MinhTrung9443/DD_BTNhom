@@ -16,6 +16,7 @@ public class Account implements Serializable{
 	 */
 	private static final long serialVersionUID = -1045283451506266552L;
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int accountId;
 	// thêm username
 	private String username;
